@@ -6,7 +6,7 @@ import java.util.stream.Stream
 import java.util.stream.StreamSupport
 
 /**
- * Primitive imitation of full text search index.
+ * Primitive imitation of full-text search index.
 
  * @author Kiryl Dubarenka
  */
