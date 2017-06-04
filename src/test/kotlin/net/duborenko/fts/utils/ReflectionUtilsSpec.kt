@@ -22,15 +22,15 @@ object ReflectionUtilsSpec : Spek({
 
         on("list FtsIndexed values") {
             val values = ReflectionUtils.listAnnotatedValues(doc, FtsIndexed::class.java)
-            it("should return ['title', null]") {
-                assertThat(values).containsExactly("title", null)
+            it("should return [('title', 'title'), ('description', null)]") {
+                assertThat(values).containsExactly("title" to "title", "description" to null)
             }
         }
 
         on("list FtsId value") {
             val id = ReflectionUtils.getAnnotatedValue(doc, FtsId::class.java)
-            it("should return ${doc.id}") {
-                assertThat(id).isEqualTo(doc.id)
+            it("should return ('id', ${doc.id})") {
+                assertThat(id).isEqualTo("id" to doc.id)
             }
         }
     }

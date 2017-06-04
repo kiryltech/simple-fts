@@ -1,6 +1,7 @@
 package net.duborenko.fts
 
 import com.google.common.truth.Truth.assertThat
+import net.duborenko.fts.utils.ReflectionUtils
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -12,17 +13,17 @@ import java.util.UUID
  */
 object FullTextSearchSpec : Spek({
 
-    operator fun <Doc: Any> FullTextSearchIndex<Doc>.plusAssign(doc: Doc) =
-        this.add(doc)
+    operator fun <Doc : Any> FullTextSearchIndex<Doc>.plusAssign(doc: Doc) = this.add(doc)
 
-    operator fun <Doc: Any> FullTextSearchIndex<Doc>.minusAssign(doc: Doc) =
-        this.remove(doc)
+    operator fun <Doc : Any> FullTextSearchIndex<Doc>.minusAssign(doc: Doc) = this.remove(doc)
+
+    operator fun Document.get(prop: String) = ReflectionUtils.getPropertyValue(this, prop)
 
     given("empty FTS index") {
         val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document>()
 
         on("search of 'test'") {
-            val docs = fts.search("test")
+            val docs = fts.search("test").map { it.document }
             it("should return nothing") {
                 assertThat(docs).isEmpty()
             }
@@ -43,23 +44,40 @@ object FullTextSearchSpec : Spek({
         fts += doc2
 
         on("search of 'document'") {
-            val docs = fts.search("document")
+            val results = fts.search("document")
             it("should return both documents") {
-                assertThat(docs).containsExactly(doc1, doc2)
+                assertThat(results.map { it.document }).containsExactly(doc1, doc2)
+            }
+            it("should return valid matches") {
+                results.forEach { (doc, matches) ->
+                    matches.asSequence()
+                            .flatMap { (prop, kws) -> kws.asSequence().map { prop to it } }
+                            .forEach { (prop, match) ->
+                                val actualWord = doc[prop].toString().substring(match.position).toLowerCase()
+                                assertThat(actualWord).isEqualTo(match.word)
+                            }
+                }
             }
         }
 
         on("search of 'one'") {
-            val docs = fts.search("one")
+            val docs = fts.search("one").map { it.document }
             it("should return document #1") {
                 assertThat(docs).containsExactly(doc1)
             }
         }
 
         on("search of 'two'") {
-            val docs = fts.search("two")
+            val docs = fts.search("two").map { it.document }
             it("should return document #2") {
                 assertThat(docs).containsExactly(doc2)
+            }
+        }
+
+        on("search of 'document two'") {
+            val docs = fts.search("document two").map { it.document }
+            it("should return [document #2, document #1]") {
+                assertThat(docs).containsExactly(doc2, doc1).inOrder()
             }
         }
     }
@@ -84,28 +102,28 @@ object FullTextSearchSpec : Spek({
         fts += doc1Updated
 
         on("search of 'document'") {
-            val docs = fts.search("document")
+            val docs = fts.search("document").map { it.document }
             it("should return both documents") {
                 assertThat(docs).containsExactly(doc1, doc2)
             }
         }
 
         on("search of 'one'") {
-            val docs = fts.search("one")
+            val docs = fts.search("one").map { it.document }
             it("should return nothing") {
                 assertThat(docs).isEmpty()
             }
         }
 
         on("search of 'two'") {
-            val docs = fts.search("two")
+            val docs = fts.search("two").map { it.document }
             it("should return document #2") {
                 assertThat(docs).containsExactly(doc2)
             }
         }
 
         on("search of 'three'") {
-            val docs = fts.search("three")
+            val docs = fts.search("three").map { it.document }
             it("should return updated document #1") {
                 assertThat(docs).containsExactly(doc1Updated)
             }
@@ -127,21 +145,21 @@ object FullTextSearchSpec : Spek({
         fts -= doc1
 
         on("search of 'document'") {
-            val docs = fts.search("document")
+            val docs = fts.search("document").map { it.document }
             it("should return both documents") {
                 assertThat(docs).containsExactly(doc2)
             }
         }
 
         on("search of 'one'") {
-            val docs = fts.search("one")
+            val docs = fts.search("one").map { it.document }
             it("should return nothing") {
                 assertThat(docs).isEmpty()
             }
         }
 
         on("search of 'two'") {
-            val docs = fts.search("two")
+            val docs = fts.search("two").map { it.document }
             it("should return document #2") {
                 assertThat(docs).containsExactly(doc2)
             }

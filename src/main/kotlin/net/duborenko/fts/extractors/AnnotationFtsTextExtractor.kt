@@ -7,10 +7,12 @@ import java.util.stream.Stream
 /**
  * @author Kiryl Dubarenka
  */
-internal class AnnotationFtsTextExtractor<in Doc: Any> : (Doc) -> List<String?> {
+internal class AnnotationFtsTextExtractor<in Doc: Any> : (Doc) -> Map<String, String?> {
 
-    override fun invoke(doc: Doc): List<String?> = ReflectionUtils
+    override fun invoke(doc: Doc): Map<String, String?> = ReflectionUtils
             .listAnnotatedValues(doc, FtsIndexed::class.java)
-            .map { it as String }
+            .asSequence()
+            .map { (field, value) -> field to (value as String) }
+            .toMap()
 
 }
