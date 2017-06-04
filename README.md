@@ -40,3 +40,7 @@ full-text search index to demonstrate its principle of work.
 * Example in Java:
     
     _Java is not supported yet._
+    
+## Data structure
+
+![Data structure diagram](https://docs.google.com/drawings/d/1SCIm5OkPPtVysxkFqBWR_9Tnrp-FactOE1Mg5N65MJY/pub?w=1821&h=1067&)
