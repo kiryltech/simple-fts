@@ -29,8 +29,8 @@ full-text search index to demonstrate its principle of work.
                     description = "Description of document number twelve"))
                     
             fts.search("eleven")            // returns [Document #11]
-            fts.search("docuemnt twelve")   // returns [Document #12, Document #11]
-            fts.search("docuemnt eleven")   // returns [Document #11, Document #12]
+            fts.search("document eleven")   // returns [Document #11, Document #12]
+            fts.search("document twelve")   // returns [Document #12, Document #11]
         }
       
     }
