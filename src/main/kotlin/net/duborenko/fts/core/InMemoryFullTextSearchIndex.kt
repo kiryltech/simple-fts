@@ -1,10 +1,6 @@
 package net.duborenko.fts.core
 
 import net.duborenko.fts.FullTextSearchIndex
-import java.util.Spliterator
-import java.util.Spliterators
-import java.util.stream.Stream
-import java.util.stream.StreamSupport
 
 /**
  * Primitive imitation of full-text search index.
@@ -13,7 +9,7 @@ import java.util.stream.StreamSupport
  */
 internal class InMemoryFullTextSearchIndex<in Id : Comparable<Id>, Doc : Any>(
         private val getId: (Doc) -> Id,
-        private val textExtractor: (Doc) -> Stream<String?>,
+        private val textExtractor: (Doc) -> List<String?>,
         private val wordFilter: (String) -> Boolean = { it.length > 3 }) : FullTextSearchIndex<Doc> {
 
     private val keywords = hashMapOf<Id, Set<String>>()
@@ -63,7 +59,7 @@ internal class InMemoryFullTextSearchIndex<in Id : Comparable<Id>, Doc : Any>(
                 ?.forEach { removeFromIndex(document, it) }
     }
 
-    override fun search(searchTerm: String): Stream<Doc> {
+    override fun search(searchTerm: String): List<Doc> {
         val numbersOfMatches: Map<Doc, List<Doc>> = keywordsSeq(listOf(searchTerm).asSequence())
                 .asSequence()
                 .map { index[it]?.values }
@@ -76,16 +72,10 @@ internal class InMemoryFullTextSearchIndex<in Id : Comparable<Id>, Doc : Any>(
                 .sortedWith(compareByDescending<Map.Entry<Doc, List<Doc>>> { it.value.size }
                         .thenComparing { e -> e.key.id })
                 .map { it.key }
-                .toStream()
+                .toList()
     }
 
     private val Doc.id
         get() = getId(this)
 
-    private fun <T> Sequence<T>.toStream(): Stream<T> =
-            StreamSupport.stream(
-                    Spliterators.spliteratorUnknownSize(this.iterator(), Spliterator.ORDERED),
-                    false)
-
-    private fun <T> Stream<T>.asSequence() = Sequence { this.iterator() }
 }

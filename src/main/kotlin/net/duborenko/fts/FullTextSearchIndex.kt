@@ -11,6 +11,6 @@ interface FullTextSearchIndex<Doc: Any> {
 
     fun remove(document: Doc)
 
-    fun search(searchTerm: String): Stream<Doc>
+    fun search(searchTerm: String): List<Doc>
 
 }

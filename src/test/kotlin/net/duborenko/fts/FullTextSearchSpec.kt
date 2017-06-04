@@ -6,15 +6,11 @@ import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.util.UUID
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 /**
  * @author Kiryl Dubarenka
  */
 object FullTextSearchSpec : Spek({
-
-    fun <T> Stream<T>.asList() = this.collect(Collectors.toList())
 
     operator fun <Doc: Any> FullTextSearchIndex<Doc>.plusAssign(doc: Doc) =
         this.add(doc)
@@ -26,7 +22,7 @@ object FullTextSearchSpec : Spek({
         val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document>()
 
         on("search of 'test'") {
-            val docs = fts.search("test").asList()
+            val docs = fts.search("test")
             it("should return nothing") {
                 assertThat(docs).isEmpty()
             }
@@ -47,21 +43,21 @@ object FullTextSearchSpec : Spek({
         fts += doc2
 
         on("search of 'document'") {
-            val docs = fts.search("document").asList()
+            val docs = fts.search("document")
             it("should return both documents") {
                 assertThat(docs).containsExactly(doc1, doc2)
             }
         }
 
         on("search of 'one'") {
-            val docs = fts.search("one").asList()
+            val docs = fts.search("one")
             it("should return document #1") {
                 assertThat(docs).containsExactly(doc1)
             }
         }
 
         on("search of 'two'") {
-            val docs = fts.search("two").asList()
+            val docs = fts.search("two")
             it("should return document #2") {
                 assertThat(docs).containsExactly(doc2)
             }
@@ -88,28 +84,28 @@ object FullTextSearchSpec : Spek({
         fts += doc1Updated
 
         on("search of 'document'") {
-            val docs = fts.search("document").asList()
+            val docs = fts.search("document")
             it("should return both documents") {
                 assertThat(docs).containsExactly(doc1, doc2)
             }
         }
 
         on("search of 'one'") {
-            val docs = fts.search("one").asList()
+            val docs = fts.search("one")
             it("should return nothing") {
                 assertThat(docs).isEmpty()
             }
         }
 
         on("search of 'two'") {
-            val docs = fts.search("two").asList()
+            val docs = fts.search("two")
             it("should return document #2") {
                 assertThat(docs).containsExactly(doc2)
             }
         }
 
         on("search of 'three'") {
-            val docs = fts.search("three").asList()
+            val docs = fts.search("three")
             it("should return updated document #1") {
                 assertThat(docs).containsExactly(doc1Updated)
             }
@@ -131,21 +127,21 @@ object FullTextSearchSpec : Spek({
         fts -= doc1
 
         on("search of 'document'") {
-            val docs = fts.search("document").asList()
+            val docs = fts.search("document")
             it("should return both documents") {
                 assertThat(docs).containsExactly(doc2)
             }
         }
 
         on("search of 'one'") {
-            val docs = fts.search("one").asList()
+            val docs = fts.search("one")
             it("should return nothing") {
                 assertThat(docs).isEmpty()
             }
         }
 
         on("search of 'two'") {
-            val docs = fts.search("two").asList()
+            val docs = fts.search("two")
             it("should return document #2") {
                 assertThat(docs).containsExactly(doc2)
             }
