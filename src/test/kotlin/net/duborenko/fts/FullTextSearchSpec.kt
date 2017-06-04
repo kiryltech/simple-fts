@@ -13,9 +13,9 @@ import java.util.UUID
  */
 object FullTextSearchSpec : Spek({
 
-    operator fun <Doc : Any> FullTextSearchIndex<Doc>.plusAssign(doc: Doc) = this.add(doc)
+    operator fun <Id : Comparable<Id>, Doc : Any> FullTextSearchIndex<Id, Doc>.plusAssign(doc: Doc) = this.add(doc)
 
-    operator fun <Doc : Any> FullTextSearchIndex<Doc>.minusAssign(doc: Doc) = this.remove(doc)
+    operator fun <Id : Comparable<Id>, Doc : Any> FullTextSearchIndex<Id, Doc>.minusAssign(id: Id) = this.remove(id)
 
     operator fun Document.get(prop: String) = ReflectionUtils.getPropertyValue(this, prop)
 
@@ -142,7 +142,7 @@ object FullTextSearchSpec : Spek({
 
         fts += doc1
         fts += doc2
-        fts -= doc1
+        fts -= doc1.id
 
         on("search of 'document'") {
             val docs = fts.search("document").map { it.document }

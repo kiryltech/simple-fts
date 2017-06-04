@@ -12,7 +12,7 @@ import net.duborenko.fts.SearchResult
 internal class InMemoryFullTextSearchIndex<in Id : Comparable<Id>, Doc : Any>(
         private val getId: (Doc) -> Id,
         private val textExtractor: (Doc) -> Map<String, String?>,
-        private val wordFilter: (String) -> Boolean = { it.length > 3 }) : FullTextSearchIndex<Doc> {
+        private val wordFilter: (String) -> Boolean = { it.length > 3 }) : FullTextSearchIndex<Id, Doc> {
 
     private val keywords = hashMapOf<Id, Map<String, Set<Keyword>>>()
     private val index = hashMapOf<String, MutableMap<Id, Doc>>()
@@ -39,7 +39,7 @@ internal class InMemoryFullTextSearchIndex<in Id : Comparable<Id>, Doc : Any>(
 
         // cleanup old keywords
         (existingKeywords - newKeywords)
-                .forEach { removeFromIndex(document, it) }
+                .forEach { removeFromIndex(document.id, it) }
 
         keywords.put(document.id, newKeywordsMap)
     }
@@ -61,9 +61,9 @@ internal class InMemoryFullTextSearchIndex<in Id : Comparable<Id>, Doc : Any>(
                 .toSet()
     }
 
-    private fun removeFromIndex(document: Doc, word: String) {
+    private fun removeFromIndex(id: Id, word: String) {
         val documents = index[word] ?: return
-        documents -= document.id
+        documents -= id
         if (documents.isEmpty()) {
             index -= word
         }
@@ -73,14 +73,14 @@ internal class InMemoryFullTextSearchIndex<in Id : Comparable<Id>, Doc : Any>(
         index.computeIfAbsent(word) { hashMapOf() } += document.id to document
     }
 
-    override fun remove(document: Doc) {
-        keywords.remove(document.id)
+    override fun remove(id: Id) {
+        keywords.remove(id)
                 ?.values
                 ?.asSequence()
                 ?.flatten()
                 ?.map { it.word }
                 ?.toSet()
-                ?.forEach { removeFromIndex(document, it) }
+                ?.forEach { removeFromIndex(id, it) }
     }
 
     override fun search(searchTerm: String): List<SearchResult<Doc>> {
