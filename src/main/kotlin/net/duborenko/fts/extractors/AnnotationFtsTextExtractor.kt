@@ -2,12 +2,11 @@ package net.duborenko.fts.extractors
 
 import net.duborenko.fts.FtsIndexed
 import net.duborenko.fts.utils.ReflectionUtils
-import java.util.stream.Stream
 
 /**
  * @author Kiryl Dubarenka
  */
-internal class AnnotationFtsTextExtractor<in Doc: Any> : (Doc) -> Map<String, String?> {
+internal class AnnotationFtsTextExtractor<in Doc : Any> : (Doc) -> Map<String, String?> {
 
     override fun invoke(doc: Doc): Map<String, String?> = ReflectionUtils
             .listAnnotatedValues(doc, FtsIndexed::class.java)
