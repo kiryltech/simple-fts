@@ -1,5 +1,6 @@
 package net.duborenko.fts.core
 
+import net.duborenko.fts.FullTextSearchIndex
 import java.util.Spliterator
 import java.util.Spliterators
 import java.util.stream.Stream
@@ -10,15 +11,15 @@ import java.util.stream.StreamSupport
 
  * @author Kiryl Dubarenka
  */
-class FullTextSearchIndex<in Id : Comparable<Id>, Doc: Any>(
+internal class InMemoryFullTextSearchIndex<in Id : Comparable<Id>, Doc : Any>(
         private val getId: (Doc) -> Id,
         private val textExtractor: (Doc) -> Stream<String?>,
-        private val wordFilter: (String) -> Boolean = { it.length > 3 }) {
+        private val wordFilter: (String) -> Boolean = { it.length > 3 }) : FullTextSearchIndex<Doc> {
 
     private val keywords = hashMapOf<Id, Set<String>>()
     private val index = hashMapOf<String, MutableMap<Id, Doc>>()
 
-    fun add(document: Doc) {
+    override fun add(document: Doc) {
         val existingKeywords = keywords.getOrDefault(document.id, setOf())
 
         val newKeywords: Set<String> = keywordsSeq(textExtractor(document).asSequence())
@@ -57,12 +58,12 @@ class FullTextSearchIndex<in Id : Comparable<Id>, Doc: Any>(
         index.computeIfAbsent(word) { hashMapOf() } += document.id to document
     }
 
-    fun remove(document: Doc) {
+    override fun remove(document: Doc) {
         keywords.remove(document.id)
                 ?.forEach { removeFromIndex(document, it) }
     }
 
-    fun search(searchTerm: String): Stream<Doc> {
+    override fun search(searchTerm: String): Stream<Doc> {
         val numbersOfMatches: Map<Doc, List<Doc>> = keywordsSeq(listOf(searchTerm).asSequence())
                 .asSequence()
                 .map { index[it]?.values }
@@ -76,19 +77,15 @@ class FullTextSearchIndex<in Id : Comparable<Id>, Doc: Any>(
                         .thenComparing { e -> e.key.id })
                 .map { it.key }
                 .toStream()
-
     }
 
     private val Doc.id
         get() = getId(this)
 
-    private fun <T> Sequence<T>.toStream(): Stream<T> {
-        return StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(this.iterator(), Spliterator.ORDERED),
-                false)
-    }
+    private fun <T> Sequence<T>.toStream(): Stream<T> =
+            StreamSupport.stream(
+                    Spliterators.spliteratorUnknownSize(this.iterator(), Spliterator.ORDERED),
+                    false)
 
-    private fun <T> Stream<T>.asSequence(): Sequence<T> {
-        return Sequence { this.iterator() }
-    }
+    private fun <T> Stream<T>.asSequence() = Sequence { this.iterator() }
 }

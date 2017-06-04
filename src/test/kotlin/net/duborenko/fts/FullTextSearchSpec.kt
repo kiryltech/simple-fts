@@ -1,7 +1,6 @@
 package net.duborenko.fts
 
 import com.google.common.truth.Truth.assertThat
-import net.duborenko.fts.core.FullTextSearchIndex
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -17,10 +16,10 @@ object FullTextSearchSpec : Spek({
 
     fun <T> Stream<T>.asList() = this.collect(Collectors.toList())
 
-    operator fun <Id : Comparable<Id>, Doc: Any> FullTextSearchIndex<Id, Doc>.plusAssign(doc: Doc) =
+    operator fun <Doc: Any> FullTextSearchIndex<Doc>.plusAssign(doc: Doc) =
         this.add(doc)
 
-    operator fun <Id : Comparable<Id>, Doc: Any> FullTextSearchIndex<Id, Doc>.minusAssign(doc: Doc) =
+    operator fun <Doc: Any> FullTextSearchIndex<Doc>.minusAssign(doc: Doc) =
         this.remove(doc)
 
     given("empty FTS index") {
