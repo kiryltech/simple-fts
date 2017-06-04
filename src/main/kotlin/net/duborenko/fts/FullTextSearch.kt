@@ -1,6 +1,8 @@
 package net.duborenko.fts
 
 import net.duborenko.fts.core.FullTextSearchIndex
+import net.duborenko.fts.extractors.AnnotationFtsIdExtractor
+import net.duborenko.fts.extractors.AnnotationFtsTextExtractor
 
 /**
  * @author Kiryl Dubarenka

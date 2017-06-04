@@ -1,11 +1,11 @@
-package net.duborenko.fts
+package net.duborenko.fts.utils
 
 import kotlin.reflect.KProperty
 
 /**
  * @author Kiryl Dubarenka
  */
-object ReflectionUtils {
+internal object ReflectionUtils {
 
     private fun <Doc: Any> listProperties(doc: Doc) =
         doc::class.members.asSequence()

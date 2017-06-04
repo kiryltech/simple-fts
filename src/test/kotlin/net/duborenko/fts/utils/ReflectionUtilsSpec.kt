@@ -1,6 +1,9 @@
-package net.duborenko.fts
+package net.duborenko.fts.utils
 
 import com.google.common.truth.Truth.assertThat
+import net.duborenko.fts.Document
+import net.duborenko.fts.FtsId
+import net.duborenko.fts.FtsIndexed
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
