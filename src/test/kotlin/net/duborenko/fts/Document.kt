@@ -3,7 +3,7 @@ package net.duborenko.fts
 import java.util.UUID
 
 data class Document(
-        val id: UUID = UUID.randomUUID(),
-        val title: String,
-        val description: String?
+        @FtsId val id: UUID = UUID.randomUUID(),
+        @FtsIndexed val title: String,
+        @FtsIndexed val description: String?
 )

@@ -1,6 +1,7 @@
 package net.duborenko.fts
 
 import com.google.common.truth.Truth.assertThat
+import net.duborenko.fts.core.FullTextSearchIndex
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -12,21 +13,18 @@ import java.util.stream.Stream
 /**
  * @author Kiryl Dubarenka
  */
-object FullTextSearchIndexSpec : Spek({
+object FullTextSearchSpec : Spek({
 
     fun <T> Stream<T>.asList() = this.collect(Collectors.toList())
 
-    operator fun <Id : Comparable<Id>, Doc> FullTextSearchIndex<Id, Doc>.plusAssign(doc: Doc) =
+    operator fun <Id : Comparable<Id>, Doc: Any> FullTextSearchIndex<Id, Doc>.plusAssign(doc: Doc) =
         this.add(doc)
 
-    operator fun <Id : Comparable<Id>, Doc> FullTextSearchIndex<Id, Doc>.minusAssign(doc: Doc) =
+    operator fun <Id : Comparable<Id>, Doc: Any> FullTextSearchIndex<Id, Doc>.minusAssign(doc: Doc) =
         this.remove(doc)
 
     given("empty FTS index") {
-        val fts = FullTextSearchIndex<UUID, Document>(
-                getId = { it.id },
-                textExtractor = { Stream.of(it.title, it.description) }
-        )
+        val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document>()
 
         on("search of 'test'") {
             val docs = fts.search("test").asList()
@@ -37,11 +35,7 @@ object FullTextSearchIndexSpec : Spek({
     }
 
     given("FTS index with two documents") {
-        val fts = FullTextSearchIndex<UUID, Document>(
-                getId = { it.id },
-                textExtractor = { Stream.of(it.title, it.description) },
-                wordFilter = { it != null && it.isNotEmpty() }
-        )
+        val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document> { it.isNotEmpty() }
 
         val doc1 = Document(
                 title = "Document #1",
@@ -76,11 +70,7 @@ object FullTextSearchIndexSpec : Spek({
     }
 
     given("FTS index with updated document") {
-        val fts = FullTextSearchIndex<UUID, Document>(
-                getId = { it.id },
-                textExtractor = { Stream.of(it.title, it.description) },
-                wordFilter = { it != null && it.isNotEmpty() }
-        )
+        val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document> { it.isNotEmpty() }
 
         val doc1 = Document(
                 title = "Document #1",
@@ -128,11 +118,7 @@ object FullTextSearchIndexSpec : Spek({
     }
 
     given("FTS index with removed document") {
-        val fts = FullTextSearchIndex<UUID, Document>(
-                getId = { it.id },
-                textExtractor = { Stream.of(it.title, it.description) },
-                wordFilter = { it != null && it.isNotEmpty() }
-        )
+        val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document> { it.isNotEmpty() }
 
         val doc1 = Document(
                 title = "Document #1",

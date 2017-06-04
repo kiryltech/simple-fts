@@ -1,4 +1,4 @@
-package net.duborenko.fts
+package net.duborenko.fts.core
 
 import java.util.Spliterator
 import java.util.Spliterators
@@ -10,10 +10,10 @@ import java.util.stream.StreamSupport
 
  * @author Kiryl Dubarenka
  */
-class FullTextSearchIndex<in Id : Comparable<Id>, Doc>(
+class FullTextSearchIndex<in Id : Comparable<Id>, Doc: Any>(
         private val getId: (Doc) -> Id,
         private val textExtractor: (Doc) -> Stream<String?>,
-        private val wordFilter: (String?) -> Boolean = { it != null && it.length > 3 }) {
+        private val wordFilter: (String) -> Boolean = { it.length > 3 }) {
 
     private val keywords = hashMapOf<Id, Set<String>>()
     private val index = hashMapOf<String, MutableMap<Id, Doc>>()
