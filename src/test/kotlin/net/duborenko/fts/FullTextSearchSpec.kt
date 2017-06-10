@@ -30,8 +30,11 @@ object FullTextSearchSpec : Spek({
         }
     }
 
-    given("FTS index with two documents") {
-        val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document> { it.isNotEmpty() }
+    given("FTS index with two documents and custom ranking") {
+        val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document>(
+                wordFilter = { it.isNotEmpty() },
+                rank = { it.matches.values.sumBy { it.size } }
+        )
 
         val doc1 = Document(
                 title = "Document #1",
@@ -83,7 +86,7 @@ object FullTextSearchSpec : Spek({
     }
 
     given("FTS index with updated document") {
-        val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document> { it.isNotEmpty() }
+        val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document>(wordFilter = { it.isNotEmpty() })
 
         val doc1 = Document(
                 title = "Document #1",
@@ -131,7 +134,7 @@ object FullTextSearchSpec : Spek({
     }
 
     given("FTS index with removed document") {
-        val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document> { it.isNotEmpty() }
+        val fts = FullTextSearch.createIndexWithAnnotationExtractor<UUID, Document>(wordFilter = { it.isNotEmpty() })
 
         val doc1 = Document(
                 title = "Document #1",

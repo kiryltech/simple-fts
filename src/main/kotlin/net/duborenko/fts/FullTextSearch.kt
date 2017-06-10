@@ -9,18 +9,24 @@ import net.duborenko.fts.extractors.AnnotationFtsTextExtractor
  */
 object FullTextSearch {
 
-    fun <Id : Comparable<Id>, Doc : Any> createIndexWithAnnotationExtractor(): FullTextSearchIndex<Id, Doc> =
-            InMemoryFullTextSearchIndex<Id, Doc>(
-                    getId = AnnotationFtsIdExtractor(),
-                    textExtractor = AnnotationFtsTextExtractor()
-            )
+    fun <Id : Comparable<Id>, Doc : Any> createIndexWithAnnotationExtractor(
+            wordFilter: ((String) -> Boolean)? = null,
+            rank: ((SearchResult<Doc>) -> Int)? = null
+    ): FullTextSearchIndex<Id, Doc> =
+            if (wordFilter == null)
+                InMemoryFullTextSearchIndex(
+                        getId = AnnotationFtsIdExtractor(),
+                        textExtractor = AnnotationFtsTextExtractor(),
+                        rank = rank
+                )
+            else
+                InMemoryFullTextSearchIndex(
+                        getId = AnnotationFtsIdExtractor(),
+                        textExtractor = AnnotationFtsTextExtractor(),
+                        wordFilter = wordFilter,
+                        rank = rank
+                )
 
-    fun <Id : Comparable<Id>, Doc : Any> createIndexWithAnnotationExtractor(wordFilter: (String) -> Boolean): FullTextSearchIndex<Id, Doc> =
-            InMemoryFullTextSearchIndex<Id, Doc>(
-                    getId = AnnotationFtsIdExtractor(),
-                    textExtractor = AnnotationFtsTextExtractor(),
-                    wordFilter = wordFilter
-            )
 
 }
 

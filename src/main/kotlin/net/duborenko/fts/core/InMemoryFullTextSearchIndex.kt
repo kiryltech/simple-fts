@@ -12,7 +12,8 @@ import net.duborenko.fts.SearchResult
 internal class InMemoryFullTextSearchIndex<in Id : Comparable<Id>, Doc : Any>(
         private val getId: (Doc) -> Id,
         private val textExtractor: (Doc) -> Map<String, String?>,
-        private val wordFilter: (String) -> Boolean = { it.length > 3 }) : FullTextSearchIndex<Id, Doc> {
+        private val wordFilter: (String) -> Boolean = { it.length > 3 },
+        private val rank: ((SearchResult<Doc>) -> Int)? = null) : FullTextSearchIndex<Id, Doc> {
 
     private val keywords = hashMapOf<Id, Map<String, Set<Keyword>>>()
     private val index = hashMapOf<String, MutableMap<Id, Doc>>()
@@ -84,21 +85,21 @@ internal class InMemoryFullTextSearchIndex<in Id : Comparable<Id>, Doc : Any>(
     }
 
     override fun search(searchTerm: String): List<SearchResult<Doc>> {
-        val kws = extractKeywords(searchTerm)
+        var searchResults = extractKeywords(searchTerm)
                 .map { it.word }
-        val numbersOfMatches: Map<Doc, List<Doc>> = kws
                 .asSequence()
                 .map { index[it]?.values }
                 .filterNotNull()
                 .flatMap { it.asSequence() }
-                .groupBy { it }
-
-        return numbersOfMatches.entries
-                .asSequence()
-                .sortedWith(compareByDescending<Map.Entry<Doc, List<Doc>>> { it.value.size }
-                        .thenComparing { e -> e.key.id })
-                .map { it.key }
-                .map { SearchResult(it, getMatches(keywords[it.id]!!, kws.toSet())) }
+                .distinct()
+                .map {
+                    SearchResult(it, getMatches(keywords[it.id]!!, extractKeywords(searchTerm)
+                            .map { it.word }.toSet()))
+                }
+        rank?.let {
+            searchResults = searchResults.sortedByDescending(it)
+        }
+        return searchResults
                 .toList()
     }
 
